@@ -1,0 +1,65 @@
+# Unreal Engine 项目基础忽略规则
+
+# --- 必须保留的核心文件 ---
+# 保留 .uproject 项目入口文件
+!.uproject
+
+# 保留 Config/ 目录（项目配置）
+!Config/
+!Config/*
+
+# 保留 Content/ 目录（资源、蓝图、资产）
+!Content/
+!Content/**/*
+
+# 保留 Source/ 目录（C++ 源代码）
+!Source/
+!Source/**/*
+
+# 保留 Plugins/ 目录（自定义插件）
+!Plugins/
+!Plugins/**/*
+
+# 保留 .gitignore、README.md 等必要文档
+!.gitignore
+!README.md
+
+
+# --- 必须忽略的生成文件和缓存 ---
+# UE 临时生成目录
+Intermediate/
+Binaries/
+DerivedDataCache/
+Saved/
+Build/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# 本地IDE缓存（Visual Studio, Rider等）
+.vs/
+.idea/
+.vsconfig
+*.suo
+*.user
+*.userprefs
+
+# 编译产物和日志
+*.log
+*.dg.json
+*.opendb
+
+# 平台相关临时文件
+[Pp]lugins/*/Binaries/
+[Pp]lugins/*/Intermediate/
+
+# 操作系统临时文件
+.DS_Store
+Thumbs.db
+
+# 其他工具生成文件
+*.apk
+*.aab
+*.ipa
+*.xcodeproj
+*.xcworkspace
