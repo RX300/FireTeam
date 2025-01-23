@@ -53,6 +53,11 @@ void AMyFTCharacter::SetAimOffset()
 	Pitch = FMath::ClampAngle(Pitch, -90.0f, 90.0f);
 }
 
+void AMyFTCharacter::SetThirdPersonMesh(USkeletalMeshComponent* ThirdMesh)
+{
+	TP_Mesh = ThirdMesh;
+}
+
 void AMyFTCharacter::BeginPlay()
 {
 	Super::BeginPlay();

@@ -5,6 +5,7 @@
 #include "FireTeamCharacter.h"
 #include "Net/UnrealNetwork.h" // 使用DOREPLIFETIME必须包含此头文件
 #include "Kismet/GameplayStatics.h"
+#include "Public/Characters/MyFTCharacter.h"
 // Sets default values
 AWeaponActor::AWeaponActor()
 {
@@ -17,8 +18,7 @@ AWeaponActor::AWeaponActor()
 	BulletSceneComponent->SetupAttachment(WeaponMesh);
 	//设置类为Replicated
 	bReplicates = true;
-	//绑定事件
-	//ServeShootingEvent.AddDynamic(this, &AWeaponActor::Shoot);
+
 }
 
 // Called when the game starts or when spawned
@@ -29,11 +29,14 @@ void AWeaponActor::BeginPlay()
 	AActor* ParentActor = GetAttachParentActor();
 	if (ParentActor)
 	{
-		AFireTeamCharacter* MyCharacter = Cast<AFireTeamCharacter>(ParentActor);
+		AMyFTCharacter* MyCharacter = Cast<AMyFTCharacter>(ParentActor);
 		if (MyCharacter)
 		{
 			//设置武器的拥有者为这个MyFTCharacter
 			SetOwner(MyCharacter);
+			WeaponOwner = MyCharacter;
+			WeaponOwner->SetReplicates(true);
+			WeaponOwner->SetReplicateMovement(true);
 		}
 		else
 		{
@@ -41,7 +44,8 @@ void AWeaponActor::BeginPlay()
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("WeaponActor's ParentActor is not MyFTCharacter"));
 		}
 	}
-	
+	//绑定事件
+	ServeShootingEvent.AddDynamic(this, &AWeaponActor::Shoot);
 }
 
 void AWeaponActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -61,47 +65,64 @@ void AWeaponActor::Tick(float DeltaTime)
 
 void AWeaponActor::PrimaryFire(bool isFiring)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PrimaryFire"));
 	if (isFiring)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PrimaryFire"));
 		//if (GetLocalRole() == ROLE_Authority) {//仅在服务器上调用
-		//	ServeShootingEvent.Broadcast(BulletSceneComponent->GetComponentLocation(), BulletSceneComponent->GetForwardVector(), Cast<APlayerController>(GetOwner()));
-		//}
+		auto MyCharacter = Cast<AFireTeamCharacter>(GetOwner());
+		auto curController = Cast<APlayerController>(MyCharacter->GetController());
+		ServeShootingEvent.Broadcast(BulletSceneComponent->GetComponentLocation(), BulletSceneComponent->GetForwardVector(), curController);
 	}
 }
 
-//void AWeaponActor::Multicast_FireBullet_Implementation(FVector Origin, FVector Direction, const FHitResult& HitResult)
-//{
-//
-//}
-//
-//void AWeaponActor::Shoot_Implementation(FVector Origin, FVector Direction, APlayerController* Controller)
-//{
-//	// 检查 Controller 有效性
-//	if (!Controller || !Controller->GetPawn()) {
-//		UE_LOG(LogTemp, Error, TEXT("Invalid Controller or Pawn!"));
-//		return;
-//	}
-//	// 定义线性追踪的起始和结束位置
-//	FVector Start = Origin; // 起始点
-//	FVector End = Origin + Direction * 10000; // 结束点，长度为10000单位
-//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Shoot"));
-//	// 执行线性追踪
-//	FHitResult HitResult;
-//	FCollisionQueryParams TraceParams(FName(TEXT("WeaponTrace")), true);
-//	TraceParams.AddIgnoredActor(Controller->GetPawn());
-//	TraceParams.bTraceComplex = true;
-//	TraceParams.bReturnPhysicalMaterial = true;
-//
-//	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, TraceParams))
-//	{
-//		// 如果有碰撞，您可以在这里处理碰撞结果
-//		UGameplayStatics::ApplyPointDamage(HitResult.GetActor(), 20.0f, Direction, HitResult, Controller, this, UDamageType::StaticClass());
-//	}
-//
-//	// 绘制调试线，持续时间为5秒
-//	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 5.0f, 0, 1.0f);
-//	// 调用多播函数
-//	Multicast_FireBullet(Origin, Direction, HitResult);
-//}
+void AWeaponActor::Multicast_FireBullet_Implementation(FVector Origin, FVector Direction, const FHitResult& HitResult)
+{
+	
+	//判断当前拥有者是本地玩家还是远程玩家
+	if(WeaponOwner->IsLocallyControlled())
+	{
+		//播放本地玩家的第一人称动画
+		auto FP_Mesh = WeaponOwner->GetMesh1P();
+		//play animation_montage
+		//Get Animation Montage From Text
+		//UAnimMontage* FireMontage = Cast<UAnimMontage>(StaticLoadObject(UAnimMontage::StaticClass(), NULL, TEXT("/Game/FirstPersonArms/Animations/FP_Rifle_Shoot_Montage")));
+		FP_Mesh->GetAnimInstance()->Montage_Play(FP_FireAnimation, 1.0f);
+	}
+	else
+	{
+		//播放其他玩家的第三人称动画
+		auto TP_Mesh=WeaponOwner->TP_Mesh;
+		//UAnimMontage* FireMontage = Cast<UAnimMontage>(StaticLoadObject(UAnimMontage::StaticClass(), NULL, TEXT("/Game/_Game/Animations/CustomTPFire_Rifle_Hip_Montage")));
+		TP_Mesh->GetAnimInstance()->Montage_Play(TP_FireAnimation, 1.0f);
+	}
+}
+
+void AWeaponActor::Shoot_Implementation(FVector Origin, FVector Direction, APlayerController* Controller)
+{
+	// 检查 Controller 有效性
+	if (!Controller || !Controller->GetPawn()) {
+		UE_LOG(LogTemp, Error, TEXT("Invalid Controller or Pawn!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Invalid Controller or Pawn!"));
+		return;
+	}
+	// 定义线性追踪的起始和结束位置
+	FVector Start = Origin; // 起始点
+	FVector End = Origin + Direction * 10000; // 结束点，长度为10000单位
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Shoot"));
+	// 执行线性追踪
+	FHitResult HitResult;
+	FCollisionQueryParams TraceParams(FName(TEXT("WeaponTrace")), true);
+	TraceParams.AddIgnoredActor(Controller->GetPawn());
+	TraceParams.bTraceComplex = true;
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, TraceParams))
+	{
+		// 如果有碰撞，您可以在这里处理碰撞结果
+		UGameplayStatics::ApplyPointDamage(HitResult.GetActor(), 20.0f, Direction, HitResult, Controller, this, UDamageType::StaticClass());
+	}
+
+	// 绘制调试线，持续时间为5秒
+	DrawDebugLine(GetWorld(), Start, HitResult.bBlockingHit?HitResult.Location:End, FColor::Green, false, 5.0f, 0, 1.0f);
+	// 调用多播函数
+	Multicast_FireBullet(Origin, Direction, HitResult);
+}
