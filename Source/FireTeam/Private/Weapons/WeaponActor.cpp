@@ -37,6 +37,7 @@ void AWeaponActor::BeginPlay()
 			WeaponOwner = MyCharacter;
 			WeaponOwner->SetReplicates(true);
 			WeaponOwner->SetReplicateMovement(true);
+			WeaponOwner->OnCustomEvent();
 		}
 		else
 		{
@@ -45,7 +46,7 @@ void AWeaponActor::BeginPlay()
 		}
 	}
 	//绑定事件
-	ServeShootingEvent.AddDynamic(this, &AWeaponActor::Shoot);
+	ServeShootingEDispatcher.AddDynamic(this, &AWeaponActor::Shoot);
 }
 
 void AWeaponActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -70,7 +71,7 @@ void AWeaponActor::PrimaryFire(bool isFiring)
 		//if (GetLocalRole() == ROLE_Authority) {//仅在服务器上调用
 		auto MyCharacter = Cast<AFireTeamCharacter>(GetOwner());
 		auto curController = Cast<APlayerController>(MyCharacter->GetController());
-		ServeShootingEvent.Broadcast(BulletSceneComponent->GetComponentLocation(), BulletSceneComponent->GetForwardVector(), curController);
+		ServeShootingEDispatcher.Broadcast(BulletSceneComponent->GetComponentLocation(), BulletSceneComponent->GetForwardVector(), curController);
 	}
 }
 

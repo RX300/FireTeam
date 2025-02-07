@@ -9,8 +9,9 @@
 
 // 声明带三个参数的事件
 // 声明动态多播委托（支持蓝图和网络复制）
+// 蓝图里的事件分发器实际上就是一个动态多播委托
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
-	FServeShootingEvent,
+	FServeShootingEventDispatcher,
 	FVector, Origin,
 	FVector, Direction,
 	APlayerController*, Controller);
@@ -43,7 +44,7 @@ public:
 
 	// 定义事件
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
-	FServeShootingEvent ServeShootingEvent;
+	FServeShootingEventDispatcher ServeShootingEDispatcher;
 	// 服务器实现事件的函数，函数名前面必须以Server开头
 	UFUNCTION(Server, Reliable,BlueprintCallable,Category = "CustomEvents")
 	void Shoot(FVector Origin, FVector Direction, APlayerController* Controller);
