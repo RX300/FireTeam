@@ -40,17 +40,25 @@ public:
 	// ICombatInterface interface
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void PrimaryFire(bool isFiring) override;
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	virtual void Reload() override;
 	// End of ICombatInterface interface
 
 	// 定义事件
+	// Shoot相关
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
 	FServeShootingEventDispatcher ServeShootingEDispatcher;
 	// 服务器实现事件的函数，函数名前面必须以Server开头
-	UFUNCTION(Server, Reliable,BlueprintCallable,Category = "CustomEvents")
-	void Shoot(FVector Origin, FVector Direction, APlayerController* Controller);
+	UFUNCTION(Server, Reliable,BlueprintCallable,Category = "Combat")
+	void Server_Shoot(FVector Origin, FVector Direction, APlayerController* Controller);
 	// 声明多播 RPC 函数（名称必须以 Multicast_ 开头）
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Combat")
 	void Multicast_FireBullet(FVector Origin, FVector Direction, const FHitResult& HitResult);
+	// Reload相关
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Combat")
+	void Server_Reload();
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Combat")
+	void Multicast_Reload();
 
 public:
 	//蓝图可编辑的骨骼网格体组件
@@ -59,10 +67,17 @@ public:
 	//场景组件，表示子弹发射的位置
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Weapon")
 	TObjectPtr<USceneComponent> BulletSceneComponent;
+	// Shoot动画
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TObjectPtr<UAnimMontage> FP_FireAnimation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TObjectPtr<UAnimMontage> TP_FireAnimation;
+	// Reload动画
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TObjectPtr<UAnimMontage> FP_ReloadAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TObjectPtr<UAnimMontage> TP_ReloadAnimation;
+
 private:
 	// 用于存储武器的拥有者
 	TObjectPtr<AMyFTCharacter> WeaponOwner;

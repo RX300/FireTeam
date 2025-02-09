@@ -46,7 +46,7 @@ void AWeaponActor::BeginPlay()
 		}
 	}
 	//绑定事件
-	ServeShootingEDispatcher.AddDynamic(this, &AWeaponActor::Shoot);
+	ServeShootingEDispatcher.AddDynamic(this, &AWeaponActor::Server_Shoot);
 }
 
 void AWeaponActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -68,7 +68,6 @@ void AWeaponActor::PrimaryFire(bool isFiring)
 {
 	if (isFiring)
 	{
-		//if (GetLocalRole() == ROLE_Authority) {//仅在服务器上调用
 		auto MyCharacter = Cast<AFireTeamCharacter>(GetOwner());
 		auto curController = Cast<APlayerController>(MyCharacter->GetController());
 		ServeShootingEDispatcher.Broadcast(BulletSceneComponent->GetComponentLocation(), BulletSceneComponent->GetForwardVector(), curController);
@@ -97,7 +96,7 @@ void AWeaponActor::Multicast_FireBullet_Implementation(FVector Origin, FVector D
 	}
 }
 
-void AWeaponActor::Shoot_Implementation(FVector Origin, FVector Direction, APlayerController* Controller)
+void AWeaponActor::Server_Shoot_Implementation(FVector Origin, FVector Direction, APlayerController* Controller)
 {
 	// 检查 Controller 有效性
 	if (!Controller || !Controller->GetPawn()) {
@@ -126,4 +125,31 @@ void AWeaponActor::Shoot_Implementation(FVector Origin, FVector Direction, APlay
 	DrawDebugLine(GetWorld(), Start, HitResult.bBlockingHit?HitResult.Location:End, FColor::Green, false, 5.0f, 0, 1.0f);
 	// 调用多播函数
 	Multicast_FireBullet(Origin, Direction, HitResult);
+}
+
+void AWeaponActor::Reload()
+{
+	Server_Reload();
+}
+
+void AWeaponActor::Multicast_Reload_Implementation()
+{
+	//判断当前拥有者是本地玩家还是远程玩家
+	if (WeaponOwner->IsLocallyControlled())
+	{
+		//播放本地玩家的第一人称动画
+		auto FP_Mesh = WeaponOwner->GetMesh1P();
+		FP_Mesh->GetAnimInstance()->Montage_Play(FP_ReloadAnimation, 1.0f);
+	}
+	else
+	{
+		//播放其他玩家的第三人称动画
+		auto TP_Mesh = WeaponOwner->TP_Mesh;
+		TP_Mesh->GetAnimInstance()->Montage_Play(TP_ReloadAnimation, 1.0f);
+	}
+}
+
+void AWeaponActor::Server_Reload_Implementation()
+{
+	Multicast_Reload();
 }

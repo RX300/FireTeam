@@ -17,7 +17,11 @@ public class FireTeam : ModuleRules
 			"InputCore",
 			"EnhancedInput",
             "Networking", // 如果需要网络功能
-			"Sockets"     // 如果需要网络功能
+			"Sockets",    // 如果需要网络功能
+			//UI相关模块
+			"UMG",
+			"Slate",
+			"SlateCore"
 		});
 	}
 }

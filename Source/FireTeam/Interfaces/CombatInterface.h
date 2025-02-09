@@ -27,4 +27,7 @@ public:
 	//主要攻击
 	//isFiring:是否正在攻击
 	virtual void PrimaryFire(bool isFiring)=0;
+
+	//换弹
+	virtual void Reload()=0;
 };
