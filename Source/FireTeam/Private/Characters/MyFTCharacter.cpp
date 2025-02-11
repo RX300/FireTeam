@@ -27,7 +27,8 @@ void AMyFTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//设置CharacterRotation属性在客户端和服务器端同步
 	DOREPLIFETIME(AMyFTCharacter, CharacterControllerRotation);
-
+	//DOREPLIFETIME(AMyFTCharacter, MaxHealth);
+	//DOREPLIFETIME(AMyFTCharacter, CurrentHealth);
 }
 
 void AMyFTCharacter::FromServerSetCharacterRotation() 
@@ -61,7 +62,6 @@ void AMyFTCharacter::SetThirdPersonMesh(USkeletalMeshComponent* ThirdMesh)
 void AMyFTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("My FT Character"));
 	
 	//按名称隐藏骨骼spine_01
 	ThirdPersonLegMesh->HideBoneByName(TEXT("spine_01"), EPhysBodyOp::PBO_None);
