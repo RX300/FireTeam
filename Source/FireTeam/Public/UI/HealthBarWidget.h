@@ -15,8 +15,6 @@ class FIRETEAM_API UHealthBarWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	//ÉùÃ÷À¶Í¼ÖÐµÄEventConstruct
-	//UMG_API virtual void NativeConstruct();
 	UFUNCTION(BlueprintCallable)
 	void FetchCharacterReference();
 	UFUNCTION(BlueprintCallable)

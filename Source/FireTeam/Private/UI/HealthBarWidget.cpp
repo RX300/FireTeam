@@ -5,16 +5,6 @@
 #include "Components/ProgressBar.h"
 #include "Characters/MyFTCharacter.h"
 
-//void UHealthBarWidget::NativeConstruct()
-//{
-//	//HealthBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("HealthBar")));
-//	//if (!HealthBar)
-//	//{
-//	//	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("HealthBar is nullptr"));
-//	//}
-//	InitHealthBarWidget();
-//}
-
 void UHealthBarWidget::FetchCharacterReference()
 {
     // 获取当前玩家Character
