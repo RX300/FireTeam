@@ -21,7 +21,12 @@ public class FireTeam : ModuleRules
 			//UI相关模块
 			"UMG",
 			"Slate",
-			"SlateCore"
+			"SlateCore",
+			//在线相关模块
+			"OnlineSubsystemSteam",
+            //"OnlineSubsystemNull",
+            "OnlineSubsystem",
+			"OnlineSubsystemUtils"
 		});
 	}
 }
