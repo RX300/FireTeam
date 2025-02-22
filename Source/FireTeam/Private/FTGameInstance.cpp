@@ -11,17 +11,18 @@
 UFTGameInstance::UFTGameInstance()
 {
     IOnlineSubsystem* OnlineSubSystem = IOnlineSubsystem::Get();
-    if(OnlineSubSystem)
-	{
-		OnlineSessionInterface = OnlineSubSystem->GetSessionInterface();
-        //打印当前在线子系统的名称
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, 
-            FString::Printf(TEXT("Found Online Subsysetm %s"), *OnlineSubSystem->GetSubsystemName().ToString()));
-	}
-    else
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Black, TEXT("Failed to get online subsystem."));
-    }
+    OnlineSessionInterface = OnlineSubSystem->GetSessionInterface();
+ //   if(OnlineSubSystem)
+	//{
+	//	OnlineSessionInterface = OnlineSubSystem->GetSessionInterface();
+ //       //打印当前在线子系统的名称
+ //       GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, 
+ //           FString::Printf(TEXT("Found Online Subsysetm %s"), *OnlineSubSystem->GetSubsystemName().ToString()));
+	//}
+ //   else
+ //   {
+ //       GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Black, TEXT("Failed to get online subsystem."));
+ //   }
     OnCreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &UFTGameInstance::OnCreateSessionComplete);
     OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UFTGameInstance::OnFindSessionsComplete);
 }
@@ -90,8 +91,9 @@ void UFTGameInstance::HostMatch()
     // 配置会话设置
     TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
     SessionSettings->bIsLANMatch = true;			// 会话设置：不创建 LAN 连接
-    SessionSettings->NumPublicConnections = 4;		// 会话设置：设置最大公共连接数为 4
+    SessionSettings->NumPublicConnections = 8;		// 会话设置：设置最大公共连接数为 4
     SessionSettings->bAllowJoinInProgress = true;	// 会话设置：在会话运行时允许其他玩家加入
+    SessionSettings->bIsDedicated = true;			// 会话设置：是专用服务器/host主机
     SessionSettings->bAllowJoinViaPresence = true;	// 会话设置：Steam 使用 Presence 搜索会话所在地区，确保连接正常工作
     SessionSettings->bShouldAdvertise = true;		// 会话设置：允许 Steam 发布会话
     SessionSettings->bUsesPresence = true;			// 会话设置：允许显示用户 Presence 信息

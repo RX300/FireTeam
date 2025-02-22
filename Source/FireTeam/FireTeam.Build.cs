@@ -24,7 +24,7 @@ public class FireTeam : ModuleRules
 			"SlateCore",
 			//在线相关模块
 			"OnlineSubsystemSteam",
-            //"OnlineSubsystemNull",
+            "OnlineSubsystemNull",
             "OnlineSubsystem",
 			"OnlineSubsystemUtils"
 		});
