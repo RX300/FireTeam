@@ -33,33 +33,32 @@ void AMainMenuUIManger::BeginPlay()
 {
 	Super::BeginPlay();
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("MainMenuUIManger BeginPlay"));
-	if (!MainMenuHUD)
+	if (!CurrentMenuHUD)
 	{
 		//使用计时器每隔0.5s尝试获取主菜单HUD
 		GetWorld()->GetTimerManager().SetTimer(timerHandle, FTimerDelegate::CreateLambda([this]() {
-			if (MainMenuHUD)
+			//获取主菜单HUD
+			CurrentMenuHUD = GetWorld()->GetFirstPlayerController()->GetHUD();
+			if (CurrentMenuHUD)
 			{
 				//清除定时器
 				GetWorld()->GetTimerManager().ClearTimer(timerHandle);
 				//创建主菜单控件
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("MainMenuUIManger  CreateMainMenuWidget"));
-				MainMenuWidget = CreateWidget<UUserWidget>(GetWorld(), MainMenuWidgetClass);
-				if (MainMenuWidget)
-				{
-					MainMenuWidget->AddToViewport();
-				}
+				CurrentMenuWidget = CreateWidget<UUserWidget>(GetWorld(), CurrentMenuWidgetClass);
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Open MainMenuWidget"));
+				CurrentMenuWidget->AddToViewport();
+
 			}
-			}), 0.5f, true);
+			}), 0.1f, true);
 	}
 	else
 	{
+		//获取主菜单HUD
+		CurrentMenuHUD = GetWorld()->GetFirstPlayerController()->GetHUD();
 		//创建主菜单控件
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("MainMenuUIManger  CreateMainMenuWidget"));
-		MainMenuWidget = CreateWidget<UUserWidget>(GetWorld(), MainMenuWidgetClass);
-		if (MainMenuWidget)
-		{
-			MainMenuWidget->AddToViewport();
-		}
+		CurrentMenuWidget = CreateWidget<UUserWidget>(GetWorld(), CurrentMenuWidgetClass);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Open MainMenuWidget"));
+		CurrentMenuWidget->AddToViewport();
 	}
 	//获取玩家控制器
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();

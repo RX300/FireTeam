@@ -34,21 +34,16 @@ public:
 	virtual void Tick(float DeltaTime) override;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TObjectPtr<UUserWidget> MainMenuWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<UUserWidget> MainMenuWidgetClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TObjectPtr<UUserWidget> LobbyWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TObjectPtr<UUserWidget> MainMenuTarBarWidge;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TObjectPtr<UUserWidget> MainMenuPlayScreenWidget;
+	TSubclassOf<UUserWidget> CurrentMenuWidgetClass;
 	//控件切换器
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TObjectPtr<AHUD> MainMenuHUD;
+	TObjectPtr<AHUD> CurrentMenuHUD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UUserWidget> CurrentMenuWidget;
 private:
 	FTimerHandle timerHandle;
 };

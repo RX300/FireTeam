@@ -96,7 +96,7 @@ void UFTGameInstance::HostMatch()
     SessionSettings->bIsDedicated = true;			// 会话设置：是专用服务器/host主机
     SessionSettings->bAllowJoinViaPresence = true;	// 会话设置：Steam 使用 Presence 搜索会话所在地区，确保连接正常工作
     SessionSettings->bShouldAdvertise = true;		// 会话设置：允许 Steam 发布会话
-    SessionSettings->bUsesPresence = true;			// 会话设置：允许显示用户 Presence 信息
+    //SessionSettings->bUsesPresence = true;			// 会话设置：允许显示用户 Presence 信息
     SessionSettings->bUseLobbiesIfAvailable = true;	// （视频中未提及）会话设置：优先选择 Lobby API（Steam 支持 Lobby API）
 
     //通过LocalPlayer获取UniqueNetId
@@ -129,9 +129,9 @@ void UFTGameInstance::FindMatch()
 		SearchSettings.Reset();
 	}
     SearchSettings = MakeShareable(new FOnlineSessionSearch());
-    SearchSettings->MaxSearchResults = 10;  // 返回最多10个会话
+    SearchSettings->MaxSearchResults = 10000;  // 返回最多10个会话
     SearchSettings->bIsLanQuery = true;     // 本地网络查询
-    SearchSettings->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+    //SearchSettings->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
     // 查找会话
     const ULocalPlayer* LocalPlayer = GetFirstGamePlayer();
     auto uniqueNetID = LocalPlayer->GetPreferredUniqueNetId().GetUniqueNetId();
