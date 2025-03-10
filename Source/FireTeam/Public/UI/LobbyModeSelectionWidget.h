@@ -33,7 +33,5 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Data")
 	TArray<FName> RowNames;
 	UPROPERTY(BlueprintReadWrite, Category = "Data")
-	FName SelectedMode;
-	UPROPERTY(BlueprintReadWrite, Category = "Data")
 	int SelectedModeIndex;
 };

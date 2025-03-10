@@ -22,6 +22,21 @@ struct FLobbyGameModeTableRow : public FTableRowBase
 	TObjectPtr<UTexture2D> Image;
 };
 
+USTRUCT(BlueprintType)
+struct FGameMapTableRow : public FTableRowBase
+{
+	GENERATED_BODY()
+	/** Please add a variable description */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Name"))
+	FText Name;
+	/** Please add a variable description */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "MapPath"))
+	FString MapPath;
+	/** Please add a variable description */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Image"))
+	TObjectPtr<UTexture2D> Image;
+};
+
 UCLASS()
 class FIRETEAM_API ACustomData : public AActor
 {

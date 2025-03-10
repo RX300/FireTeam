@@ -13,7 +13,6 @@ void ULobbyModeSelectionWidget::InitLobbyModeSelectionWidget()
 	// 获取数据表行名称
 	RowNames = GameModeTable->GetRowNames();
 	SelectedModeIndex = 0;
-	SelectedMode = RowNames[SelectedModeIndex];
 	//找到名为Txt_GameMode的UTextBlock
 	TextBlock_Mode = Cast<UTextBlock>(GetWidgetFromName(TEXT("Txt_GameMode")));
 }
@@ -26,7 +25,6 @@ void ULobbyModeSelectionWidget::OnClickedBtn_Next()
 	{
 		SelectedModeIndex = 0;
 	}
-	SelectedMode = RowNames[SelectedModeIndex];
 }
 
 void ULobbyModeSelectionWidget::OnClickedBtn_Prev()
@@ -37,11 +35,11 @@ void ULobbyModeSelectionWidget::OnClickedBtn_Prev()
 	{
 		SelectedModeIndex = RowNames.Num() - 1;
 	}
-	SelectedMode = RowNames[SelectedModeIndex];
 }
 
 void ULobbyModeSelectionWidget::UpdateTextBlockMode()
 {
+	auto SelectedMode = RowNames[SelectedModeIndex];
 	//根据索引获取游戏模式名称
 	FLobbyGameModeTableRow* Row = GameModeTable->FindRow<FLobbyGameModeTableRow>(SelectedMode, TEXT(""));
 	//更新文本
