@@ -38,4 +38,6 @@ public:
 	int SelectedMapIndex;
 	UPROPERTY(BlueprintReadWrite, Category = "Data")
 	TObjectPtr<UImage> MapImage;
+	UPROPERTY(BlueprintReadWrite, Category = "Data")
+	FString CurrentMapPath;
 };

@@ -11,6 +11,7 @@
  */
 class UDataTable;
 class UTextBlock;
+class UImage;
 UCLASS()
 class FIRETEAM_API ULobbyModeSelectionWidget : public UUserWidget
 {
@@ -34,4 +35,8 @@ public:
 	TArray<FName> RowNames;
 	UPROPERTY(BlueprintReadWrite, Category = "Data")
 	int SelectedModeIndex;
+	UPROPERTY(BlueprintReadWrite, Category = "Data")
+	TObjectPtr<UImage> ModeImage;
+	UPROPERTY(BlueprintReadWrite, Category = "Data")
+	FString CurrentModePath;
 };

@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DataTable.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "Data/CustomData.h"
 void ULobbyModeSelectionWidget::InitLobbyModeSelectionWidget()
 {
@@ -15,6 +16,7 @@ void ULobbyModeSelectionWidget::InitLobbyModeSelectionWidget()
 	SelectedModeIndex = 0;
 	//找到名为Txt_GameMode的UTextBlock
 	TextBlock_Mode = Cast<UTextBlock>(GetWidgetFromName(TEXT("Txt_GameMode")));
+	ModeImage = Cast<UImage>(GetWidgetFromName(TEXT("Mode_Image")));
 }
 
 void ULobbyModeSelectionWidget::OnClickedBtn_Next()
@@ -44,4 +46,6 @@ void ULobbyModeSelectionWidget::UpdateTextBlockMode()
 	FLobbyGameModeTableRow* Row = GameModeTable->FindRow<FLobbyGameModeTableRow>(SelectedMode, TEXT(""));
 	//更新文本
 	TextBlock_Mode->SetText(Row->Name);
+	ModeImage->SetBrushFromTexture(Row->Image);
+	CurrentModePath = Row->ModePath;
 }

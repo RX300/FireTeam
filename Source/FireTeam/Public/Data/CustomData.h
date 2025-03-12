@@ -20,6 +20,8 @@ struct FLobbyGameModeTableRow : public FTableRowBase
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Image"))
 	TObjectPtr<UTexture2D> Image;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "ModePath"))
+	FString ModePath;
 };
 
 USTRUCT(BlueprintType)

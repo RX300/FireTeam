@@ -48,4 +48,5 @@ void ULobbyMapSelectorWidget::UpdateMap()
 	//更新文本和图片
 	TextBlock_Mode->SetText(Row->Name);
 	MapImage->SetBrushFromTexture(Row->Image);
+	CurrentMapPath = Row->MapPath;
 }

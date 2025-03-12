@@ -17,9 +17,14 @@ class FIRETEAM_API ALobbyHUD : public AHUD
 protected:
 	virtual void BeginPlay() override;
 public:
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void DisplayLoadScreen();
+public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> LobbyMenuWidgetClass;  // 引用蓝图类
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> LoadScreenWidgetClass;  // 表示LoadScreen的类
 private:
-	TObjectPtr<UUserWidget> LobbyMenuWidget;  // 这是指向用户控件的指针
-
+	TObjectPtr<UUserWidget> LobbyMenuWidget;  // 这是指向LobbyMenu的指针
+	TObjectPtr<UUserWidget> LoadScreenWidget;  // 这是指向 LoadScreen的指针
 };
