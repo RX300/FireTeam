@@ -2,6 +2,7 @@
 
 
 #include "UI/InGameHUD.h"
+#include "UI/HealthBarWidget.h"
 #include "Blueprint/UserWidget.h"
 AInGameHUD::AInGameHUD():Super()
 {

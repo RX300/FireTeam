@@ -2,9 +2,15 @@
 
 
 #include "Characters/MyFTCharacter.h"
+#include "Controller/MyPlayerController.h"
+#include "UI/InGameHUD.h"
+#include "UI/HealthBarWidget.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Components/InputComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h" // 网络编程必须包含这个头文件
 AMyFTCharacter::AMyFTCharacter():Super()
 {
@@ -59,6 +65,88 @@ void AMyFTCharacter::SetThirdPersonMesh(USkeletalMeshComponent* ThirdMesh)
 	TP_Mesh = ThirdMesh;
 }
 
+void AMyFTCharacter::Multicast_OnDeath_Implementation()
+{
+	//启用TP_Mesh的物理模拟
+	TP_Mesh->SetSimulatePhysics(true);
+	//设置TP_Mesh的碰撞类型为纯物理(不查询碰撞)
+	TP_Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	//获取碰撞胶囊体
+	UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(GetCapsuleComponent());
+	//设置碰撞胶囊体的碰撞类型为无碰撞
+	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//禁用角色移动组件
+	GetCharacterMovement()->DisableMovement();
+	CurrentHealth = 0.0f;
+	//设置武器的场景组件在游戏中不可见
+	TP_Gun->SetHiddenInGame(true);
+	FP_Gun->SetHiddenInGame(true);
+}
+
+void AMyFTCharacter::Client_OnDeath_Implementation()
+{
+	//设置ThirdPersonLegMesh为拥有者不可见
+	ThirdPersonLegMesh->SetOwnerNoSee(true);
+	GetMesh1P()->SetOwnerNoSee(true);
+	//设置第三人称Mesh可见
+	TP_Mesh->SetOwnerNoSee(false);
+	//set camera
+	GetFirstPersonCameraComponent()->SetActive(false);
+	TPDeath_Camera->SetActive(true);
+	//set cast shadow off
+	FirstPersonShadowMesh->SetCastShadow(false);
+	auto shadowGun = FindComponentByTag<USkeletalMeshComponent>(TEXT("Shadow_Gun"));
+	shadowGun->SetCastShadow(false);
+	//设置定时器，5s后重新生成角色
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMyFTCharacter::RespawnRequest, 5.0f, false);
+
+}
+
+void AMyFTCharacter::RespawnRequest()
+{
+	//Get Player Controller
+	AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetController());
+	if (PlayerController)
+	{
+		//调用PlayerController的Server_ReSpawnRequest方法
+		PlayerController->Server_ReSpawnRequest();
+	}
+}
+
+void AMyFTCharacter::RefreshHUD()
+{
+	//获取玩家控制器
+	AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetController());
+	AInGameHUD* InGameHud = nullptr;
+	if (PlayerController)
+		InGameHud = Cast<AInGameHUD>(PlayerController->GetHUD());
+	FTimerHandle TimerHandle;
+	//如果玩家控制器为空，使用定时器每隔0.1s获取一次PlayerController，循环直到获取到PlayerController，使用Lambda表达式
+	if (!PlayerController||!InGameHud)
+	{
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, &TimerHandle,&InGameHud]() {
+			AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetController());
+			if (PlayerController)
+				InGameHud = Cast<AInGameHUD>(PlayerController->GetHUD());
+			if (PlayerController&&InGameHud)
+			{
+				// 清除定时器
+				GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+				UHealthBarWidget* HealthBarWidget = Cast<UHealthBarWidget>(InGameHud->InGameHUDWidget->GetWidgetFromName(TEXT("BP_HealthBarWidget")));
+				HealthBarWidget->InitHealthBarWidget();
+			}
+			}, 0.2f, true);
+		return;
+	}
+	else
+	{
+		//在InGameHUDWidget中查找UHealthBarWidget类
+		UHealthBarWidget* HealthBarWidget = Cast<UHealthBarWidget>(InGameHud->InGameHUDWidget->GetWidgetFromName(TEXT("BP_HealthBarWidget")));
+		HealthBarWidget->InitHealthBarWidget();
+	}
+}
+
 void AMyFTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -75,6 +163,10 @@ void AMyFTCharacter::BeginPlay()
 	FirstPersonShadowMesh->SetRenderInMainPass(false);
 	//设置ShadowMesh的动画蓝图和ThirdPersonMesh一样
 	FirstPersonShadowMesh->SetAnimInstanceClass(ThirdPersonLegMesh->GetAnimInstance()->GetClass());
+
+	//查找名为Serve_TP_Gun的子Actor组件，赋值给TP_Gun
+	TP_Gun = FindComponentByTag<UChildActorComponent>(TEXT("TP_Gun"));
+	FP_Gun = FindComponentByTag<UChildActorComponent>(TEXT("FP_Gun"));
 }
 
 void AMyFTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerComponent)

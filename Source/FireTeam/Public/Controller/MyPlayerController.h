@@ -29,4 +29,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	// End Actor interface
+public:
+	UFUNCTION(Server,Reliable, BlueprintCallable,Category = "CustomEvents")
+	void Server_ReSpawnRequest();
 };

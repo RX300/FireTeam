@@ -117,6 +117,12 @@ void AWeaponActor::Multicast_Shoot_Implementation(FVector Origin, FVector Direct
 			//打印当前血量
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current Health: %f"), curChar->CurrentHealth));
 			curChar->OnHealthChanged.Broadcast(curChar->CurrentHealth);
+			if (curChar->CurrentHealth <= 0 && curChar->isDead!=true)
+			{
+				curChar->isDead = true;
+				curChar->Multicast_OnDeath();
+				curChar->Client_OnDeath();
+			}
 		}
 	}
 }

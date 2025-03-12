@@ -4,6 +4,7 @@
 #include "Controller/MyPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
+#include "GameMode/OnlineGameMode.h"
 
 void AMyPlayerController::BeginPlay()
 {
@@ -16,4 +17,12 @@ void AMyPlayerController::BeginPlay()
 		Subsystem->AddMappingContext(InputMappingContext, 0);
 		Subsystem->AddMappingContext(WeaponInputMappingContext, 1);
 	}
+	//设置输入模式用于游戏
+	SetInputMode(FInputModeGameOnly());
+}
+
+void AMyPlayerController::Server_ReSpawnRequest_Implementation()
+{
+	auto olGameMode = Cast<AOnlineGameMode>(GetWorld()->GetAuthGameMode());
+	olGameMode->RespawnPlayer(this);
 }

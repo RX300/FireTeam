@@ -21,6 +21,5 @@ protected:
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> InGameHUDWidgetClass;  // 引用蓝图类
-private:
 	TObjectPtr<UUserWidget> InGameHUDWidget;  // 这是指向用户控件的指针
 };
