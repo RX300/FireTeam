@@ -103,41 +103,12 @@ void AWeaponActor::Multicast_Shoot_Implementation(FVector Origin, FVector Direct
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current Ammo: %d"), CurrentAmmo));
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("IsLocallyControlled: %d"), WeaponOwner->IsLocallyControlled()));
 	OnUpdateAmmo.Broadcast();
-	//如果Hit结果不为空
-	if (HitResult.bBlockingHit)
-	{
-		if (HitResult.GetActor()->IsA(AMyFTCharacter::StaticClass()))
-		{
-			auto curChar = Cast<AMyFTCharacter>(HitResult.GetActor());
-			curChar->CurrentHealth -= baseDamage;
-			if (curChar->CurrentHealth <= 0)
-			{
-				curChar->CurrentHealth = 0;
-			}
-			//打印当前血量
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current Health: %f"), curChar->CurrentHealth));
-			curChar->OnHealthChanged.Broadcast(curChar->CurrentHealth);
-			if (curChar->CurrentHealth <= 0 && curChar->isDead!=true)
-			{
-				curChar->isDead = true;
-				curChar->Multicast_OnDeath();
-				curChar->Client_OnDeath();
-			}
-		}
-	}
 }
 
 
 void AWeaponActor::Client_Shoot_Implementation(FVector Origin, FVector Direction, const FHitResult& HitResult)
 {
-	//if (CurrentAmmo > 0)
-	//{
-	//	CurrentAmmo--;
-	//}
-	////打印当前弹药数量和是否是本地玩家
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current Ammo: %d"), CurrentAmmo));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("IsLocallyControlled: %d"), WeaponOwner->IsLocallyControlled()));
-	//OnUpdateAmmo.Broadcast();
+
 }
 
 void AWeaponActor::Server_Shoot_Implementation(FVector Origin, FVector Direction, APlayerController* Controller)
@@ -164,7 +135,6 @@ void AWeaponActor::Server_Shoot_Implementation(FVector Origin, FVector Direction
 		//如果Hit到的类是MyFTCharacter，那么就进行伤害处理
 		if (HitResult.GetActor()->IsA(AMyFTCharacter::StaticClass()))
 		{
-			auto curChar=Cast<AMyFTCharacter>(HitResult.GetActor());
 			UGameplayStatics::ApplyPointDamage(HitResult.GetActor(), baseDamage, Direction, HitResult, Controller, this, UDamageType::StaticClass());
 		}
 	}

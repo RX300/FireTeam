@@ -12,6 +12,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h" // 网络编程必须包含这个头文件
+#include "PlayerState/OnlinePlayerState.h"
+
 AMyFTCharacter::AMyFTCharacter():Super()
 {
 	//创建一个第三人称骨骼网格体组件并且挂载到根组件上
@@ -33,8 +35,16 @@ void AMyFTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//设置CharacterRotation属性在客户端和服务器端同步
 	DOREPLIFETIME(AMyFTCharacter, CharacterControllerRotation);
-	//DOREPLIFETIME(AMyFTCharacter, MaxHealth);
-	//DOREPLIFETIME(AMyFTCharacter, CurrentHealth);
+	DOREPLIFETIME(AMyFTCharacter, MaxHealth);
+	DOREPLIFETIME(AMyFTCharacter, CurrentHealth);
+	DOREPLIFETIME(AMyFTCharacter, isDead);
+}
+
+float AMyFTCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	Multicast_OnHealthChanged(ActualDamage);
+	return ActualDamage;
 }
 
 void AMyFTCharacter::FromServerSetCharacterRotation() 
@@ -63,6 +73,31 @@ void AMyFTCharacter::SetAimOffset()
 void AMyFTCharacter::SetThirdPersonMesh(USkeletalMeshComponent* ThirdMesh)
 {
 	TP_Mesh = ThirdMesh;
+}
+
+void AMyFTCharacter::Multicast_OnHealthChanged_Implementation(float DamageCount)
+{
+	CurrentHealth -= DamageCount;
+	if (CurrentHealth <= 0 && !isDead)
+	{
+		isDead = true;
+		Multicast_OnDeath();
+		Client_OnDeath();
+
+		// 调试输出LastHitBy
+		if (LastHitBy.Get())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,
+				FString::Printf(TEXT("LastHitBy : %s"), *LastHitBy.Get()->GetName()));
+			auto killerChar = Cast<AMyFTCharacter>(LastHitBy.Get()->GetCharacter());
+			auto killState = killerChar->GetPlayerState<AOnlinePlayerState>();
+			killState->GainKills(GetPlayerState<AOnlinePlayerState>()->GetPlayerName());
+		}
+		else
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LastHitBy still null in TakeDamage"));
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current Health: %f"), CurrentHealth));
+	OnHealthChanged.Broadcast(CurrentHealth);
 }
 
 void AMyFTCharacter::Multicast_OnDeath_Implementation()
