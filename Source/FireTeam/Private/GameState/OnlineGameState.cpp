@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerState.h" // 添加此行以解决不完整类型错误
 #include "PlayerState/OnlinePlayerState.h"
 
+
 void AOnlineGameState::Server_AnnounceKill_Implementation(APlayerState* playerstate, const FString& Victim)
 {
 	NetMulticast_KillAnnounced(playerstate, Victim);
@@ -35,6 +36,7 @@ void AOnlineGameState::NetMulticast_KillAnnounced_Implementation(APlayerState* p
 	}
 }
 
+//在GameMode里调用
 void AOnlineGameState::NewPlayerJoined(APlayerController* NewPlayer)
 {
 	//Get PlayerState
@@ -43,4 +45,22 @@ void AOnlineGameState::NewPlayerJoined(APlayerController* NewPlayer)
 	AOnlinePlayerState* OnlinePlayerState = Cast<AOnlinePlayerState>(PlayerState);
 	//Bind Event To OnKillEarned
 	OnlinePlayerState->OnKillEarned.AddDynamic(this, &AOnlineGameState::Server_AnnounceKill);
+}
+
+void AOnlineGameState::AddPlayerPoint(int PlayerID, int Score)
+{
+	PlayerScoreBoard.FindOrAdd(PlayerID) += Score;
+	FScoreData ScoreData;
+	ScoreData.PlayerScores = PlayerScoreBoard;
+	ScoreData.TeamScores = TeamScoreBoard;
+	OnScoreUpdated.Broadcast(ScoreData);
+}
+
+void AOnlineGameState::AddTeamPoint(int TeamID, int Score)
+{
+	TeamScoreBoard.FindOrAdd(TeamID) += Score;
+	FScoreData ScoreData;
+	ScoreData.PlayerScores = PlayerScoreBoard;
+	ScoreData.TeamScores = TeamScoreBoard;
+	OnScoreUpdated.Broadcast(ScoreData);
 }

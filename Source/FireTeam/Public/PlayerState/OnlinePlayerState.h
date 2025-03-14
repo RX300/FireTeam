@@ -25,6 +25,8 @@ public:
 public:
 	UFUNCTION(BlueprintCallable, Category = "CustomEvents")
 	void GainKills(const FString& Victim);
+	UFUNCTION(BlueprintCallable, Category = "CustomEvents")
+	void GainScore(int GainScore);
 	UPROPERTY(BlueprintAssignable, Category = "CustomEventsDispatcher")
 	FOnKillEarnedDispatcher OnKillEarned;
 public:
