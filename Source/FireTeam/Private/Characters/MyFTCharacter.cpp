@@ -5,6 +5,7 @@
 #include "Controller/MyPlayerController.h"
 #include "UI/InGameHUD.h"
 #include "UI/HealthBarWidget.h"
+#include "UI/WeaponAmmoWidget.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Components/InputComponent.h"
@@ -170,6 +171,9 @@ void AMyFTCharacter::RefreshHUD()
 				GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 				UHealthBarWidget* HealthBarWidget = Cast<UHealthBarWidget>(InGameHud->InGameHUDWidget->GetWidgetFromName(TEXT("BP_HealthBarWidget")));
 				HealthBarWidget->InitHealthBarWidget();
+				UWeaponAmmoWidget* WeaponAmmoWidget = Cast<UWeaponAmmoWidget>(InGameHud->InGameHUDWidget->GetWidgetFromName(TEXT("BP_AmmoWidget")));
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, TEXT("RefreshWeapomHUD"));
+				WeaponAmmoWidget->InitWeaponAmmoWidget();
 			}
 			}, 0.2f, true);
 		return;
@@ -179,6 +183,9 @@ void AMyFTCharacter::RefreshHUD()
 		//在InGameHUDWidget中查找UHealthBarWidget类
 		UHealthBarWidget* HealthBarWidget = Cast<UHealthBarWidget>(InGameHud->InGameHUDWidget->GetWidgetFromName(TEXT("BP_HealthBarWidget")));
 		HealthBarWidget->InitHealthBarWidget();
+		UWeaponAmmoWidget* WeaponAmmoWidget = Cast<UWeaponAmmoWidget>(InGameHud->InGameHUDWidget->GetWidgetFromName(TEXT("BP_AmmoWidget")));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, TEXT("RefreshWeapomHUD"));
+		WeaponAmmoWidget->InitWeaponAmmoWidget();
 	}
 }
 
