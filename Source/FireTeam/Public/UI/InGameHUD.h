@@ -10,6 +10,7 @@
  * 
  */
 class UUserWidget;
+class UPlayerScoreBoardWidget;
 UCLASS()
 class FIRETEAM_API AInGameHUD : public AHUD
 {
@@ -22,4 +23,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> InGameHUDWidgetClass;  // 引用蓝图类
 	TObjectPtr<UUserWidget> InGameHUDWidget;  // 这是指向用户控件的指针
+private:
+	TObjectPtr<UPlayerScoreBoardWidget> PlayerScoreBoardWidget;
 };

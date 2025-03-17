@@ -133,9 +133,9 @@ void AMyFTCharacter::Client_OnDeath_Implementation()
 	FirstPersonShadowMesh->SetCastShadow(false);
 	auto shadowGun = FindComponentByTag<USkeletalMeshComponent>(TEXT("Shadow_Gun"));
 	shadowGun->SetCastShadow(false);
-	//设置定时器，5s后重新生成角色
+	//设置定时器，1s后重新生成角色
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMyFTCharacter::RespawnRequest, 5.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMyFTCharacter::RespawnRequest, 1.0f, false);
 
 }
 
