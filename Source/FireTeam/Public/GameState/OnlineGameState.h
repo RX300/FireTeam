@@ -35,6 +35,7 @@ class FIRETEAM_API AOnlineGameState : public AGameState
 {
 	GENERATED_BODY()
 public:
+	virtual void BeginPlay() override;
 	// 在PostInitializeComponents中调用，确保所有组件初始化完成
 	virtual void PostInitializeComponents() override;
 	//GetLifetimeReplicatedProps
@@ -57,11 +58,17 @@ public:
 	FOnScoreUpdated OnScoreUpdated;
 	UFUNCTION(BlueprintCallable, Category = "Custom Events")
 	void AddTeamPoint(int TeamID, int Score);
-	UPROPERTY(BlueprintAssignable, Category = "Custom Events")
+
+	UPROPERTY(BlueprintAssignable, Category = "CustomEventsDispatcher")
 	FOnPlayerJoined OnPlayerJoined;
 	// 延迟广播玩家加入事件的方法
 	UFUNCTION(BlueprintCallable, Category = "Custom Events")
 	void BroadcastPendingPlayerJoins();
+	UFUNCTION(BlueprintCallable, Category = "Custom Events")
+	void OnMatchEnded(int winnerPlayerID, int winnerTeamID);
+	UFUNCTION(Reliable,NetMulticast, BlueprintCallable, Category = "Custom Events")
+	void NetMulticast_MatchEnded(int winnerPlayerID, int winnerTeamID);
+
 public:
 	//KillAnnouncementWidgetClass
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
@@ -75,6 +82,10 @@ public:
 	int32 WinThreshold=10;
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Game Info")
 	TArray<TObjectPtr<APlayerState>> ConnectedPlayerArray;
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Game Info")
+	int32 WinnerID;
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Game Info")
+	int32 WinningTeamID;
 private:
 	// 缓存已加入但未广播的玩家
 	TArray<TObjectPtr<APlayerState>> PendingJoinedPlayers;

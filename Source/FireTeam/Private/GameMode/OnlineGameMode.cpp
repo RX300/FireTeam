@@ -26,10 +26,15 @@ void AOnlineGameMode::SwapPlayerControllers(APlayerController* OldPC, APlayerCon
 	}	CurGameState->NewPlayerJoined(NewPC);
 }
 
-bool AOnlineGameMode::ReadyToEndMatch()
+void AOnlineGameMode::EndMatch()
+{
+	Super::EndMatch();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Black, TEXT("Match Ended"));
+}
+
+bool AOnlineGameMode::ReadyToEndMatch_Implementation()
 {
 	//Get GameState
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("ReadyToEndMatch"));
 	AOnlineGameState* CurGameState = GetGameState<AOnlineGameState>();
 	auto playerScoreBoard = CurGameState->PlayerScoreBoard;
 	auto teamScoreBoard = CurGameState->TeamScoreBoard;
@@ -42,6 +47,7 @@ bool AOnlineGameMode::ReadyToEndMatch()
 			//Set WinnerID
 			WinnerID = isTeamType ? -1 : Elem.Key;
 			WinningTeamID = isTeamType ? Elem.Key : -1;
+			OnMatchEnd.Broadcast(WinnerID, WinningTeamID);
 			return true;
 		}
 	}

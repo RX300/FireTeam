@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameState/OnlineGameState.h"
+#include "GameMode/OnlineGameMode.h"
 #include "UI/KillAnnouncementWidget.h"
 #include "UI/KillAnnouncementTrayWidget.h"
 #include "UI/InGameHUD.h"
@@ -36,6 +37,18 @@ void AOnlineGameState::NetMulticast_KillAnnounced_Implementation(APlayerState* p
 	}
 }
 
+void AOnlineGameState::BeginPlay()
+{
+	Super::BeginPlay();
+	if (!HasAuthority())
+	{
+		return;
+	}
+	//Get GameMode
+	AOnlineGameMode* CurGameMode = GetWorld()->GetAuthGameMode<AOnlineGameMode>();
+	CurGameMode->OnMatchEnd.AddDynamic(this, &AOnlineGameState::OnMatchEnded);
+}
+
 void AOnlineGameState::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -48,6 +61,8 @@ void AOnlineGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AOnlineGameState, ConnectedPlayerArray);
+	DOREPLIFETIME(AOnlineGameState, WinnerID);
+	DOREPLIFETIME(AOnlineGameState, WinningTeamID);
 }
 
 //在GameMode里调用，GameMode仅仅只在服务器端存在
@@ -158,5 +173,25 @@ void AOnlineGameState::BroadcastPendingPlayerJoins()
 
 		// 停止定时器，因为已经不需要再检查了
 		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	}
+}
+
+void AOnlineGameState::OnMatchEnded(int winnerPlayerID, int winnerTeamID)
+{
+	WinnerID = winnerPlayerID;
+	WinningTeamID = winnerTeamID;
+	NetMulticast_MatchEnded(winnerPlayerID, winnerTeamID);
+}
+
+void AOnlineGameState::NetMulticast_MatchEnded_Implementation(int winnerPlayerID, int winnerTeamID)
+{
+	//设置输入模式仅UI
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		PlayerController->SetInputMode(FInputModeUIOnly());
+		PlayerController->bShowMouseCursor = true;
+		//打印胜利者ID
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("WinnerID: %d"), winnerPlayerID));
 	}
 }

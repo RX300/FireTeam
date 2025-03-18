@@ -50,6 +50,8 @@ public:
 	// Shoot相关
 	UPROPERTY(BlueprintAssignable, Category = "CustomEventsDispatcher")
 	FServeShootingEventDispatcher ServeShootingEDispatcher;
+
+	UPROPERTY(BlueprintAssignable, Category = "CustomEventsDispatcher")
 	FUpdateAmmoDelegate OnUpdateAmmo;
 	// 服务器实现事件的函数，函数名前面必须以Server开头
 	UFUNCTION(Server, Reliable,BlueprintCallable,Category = "Combat")
